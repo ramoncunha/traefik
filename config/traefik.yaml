@@ -1,0 +1,23 @@
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+log:
+  level: DEBUG
+api:
+  dashboard: true
+  insecure: true # Do not use in production
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+certificateResolvers:
+  letsencrypt:
+    acme:
+      email: "your_email@provider.com"
+      storage: "/var/traefik/certs/cloudflare-acme.json"
+      caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false

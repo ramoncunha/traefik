@@ -1,0 +1,38 @@
+services:
+  traefik:
+    image: traefik:v3.3.2
+    container_name: traefik-demo
+    command: --api.insecure=true --providers.docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config/traefik.yaml:/etc/traefik/traefik.yaml
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    environment:
+      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
+    networks:
+      - frontend-proxy
+    restart: unless-stopped
+  whoami:
+    # A container that exposes an API to show its IP address
+    image: traefik/whoami
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.docker.localhost`)"
+    networks:
+      - frontend-proxy
+  nginx:
+    image: nginx:latest
+    container_name: nginx-demo
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nginx-http.rule=Host(`nginx.localhost`)"
+    restart: unless-stopped
+    networks:
+      - frontend-proxy
+
+networks:
+  frontend-proxy:
+    external: true
